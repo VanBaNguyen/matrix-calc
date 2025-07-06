@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Matrix REF & RREF Calculator (m × n)</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Math.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Matrix REF & RREF Calculator</h1>
+    <div class="dimension-input">
+      <label for="rows">Rows (m):</label>
+      <input type="number" id="rows" min="1" max="10" value="3" inputmode="numeric" pattern="\d*">
+      <label for="cols">Columns (n):</label>
+      <input type="number" id="cols" min="1" max="10" value="3" inputmode="numeric" pattern="\d*">
+      <button onclick="generateMatrix()">Create Matrix</button>
+    </div>
+    <div class="matrix-center">
+    <div class="matrix-bracket-wrap">
+        <form id="matrix-form"></form>
+    </div>
+    </div>
+    <div class="center-btn">
+      <button id="calc-btn" style="display:none;" onclick="calculateMatrix()">Calculate REF & RREF</button>
+    </div>
+    <div id="output"></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
