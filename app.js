@@ -122,6 +122,42 @@ function rref(matrix) {
   return arr;
 }
 
+function powerIteration(A, num_iter=1000, tol=1e-10) {
+  const n = A.length;
+  let b = Array(n).fill(1);
+  let lambda = 0;
+
+  for (let iter = 0; iter < num_iter; iter++) {
+    // Compute b_new = A * b
+    let b_new = Array(n).fill(0);
+    for (let i = 0; i < n; i++)
+      for (let j = 0; j < n; j++)
+        b_new[i] += A[i][j] * b[j];
+    // Normalize
+    const norm = Math.sqrt(b_new.reduce((sum, x) => sum + x*x, 0));
+    b_new = b_new.map(x => x / norm);
+
+    // Rayleigh quotient for eigenvalue estimate
+    let num = 0, den = 0;
+    for (let i = 0; i < n; i++) {
+      let s = 0;
+      for (let j = 0; j < n; j++)
+        s += A[i][j] * b_new[j];
+      num += b_new[i] * s;
+      den += b_new[i] * b_new[i];
+    }
+    let lambda_new = num / den;
+
+    // Check for convergence
+    if (Math.abs(lambda_new - lambda) < tol)
+      break;
+    lambda = lambda_new;
+    b = b_new;
+  }
+  return {eigenvalue: lambda, eigenvector: b};
+}
+
+
 function calculateMatrix() {
   const matrix = getMatrix();
   let output = "<h3>Input Matrix</h3>" + matrixToHtml(matrix);
