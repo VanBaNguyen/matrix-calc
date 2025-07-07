@@ -190,5 +190,27 @@ function qrDecomposition(A) {
   return {Q: Qmat, R: R};
 }
 
+function qrAlgorithm(A, maxIter=100, tol=1e-8) {
+  let n = A.length;
+  let Ak = A.map(row => row.slice());
+  for (let iter = 0; iter < maxIter; iter++) {
+    let {Q, R} = qrDecomposition(Ak);
+    // Multiply R*Q
+    let newA = Array.from({length: n}, () => Array(n).fill(0));
+    for (let i = 0; i < n; i++)
+      for (let j = 0; j < n; j++)
+        for (let k = 0; k < n; k++)
+          newA[i][j] += R[i][k] * Q[k][j];
+    // Check for convergence
+    let diff = 0;
+    for (let i = 0; i < n; i++)
+      for (let j = 0; j < n; j++)
+        diff += Math.abs(newA[i][j] - Ak[i][j]);
+    if (diff < tol) break;
+    Ak = newA;
+  }
+  // Eigenvalues are on diagonal
+  return Ak.map((row, i) => row[i]);
+}
 
 window.onload = generateMatrix;
