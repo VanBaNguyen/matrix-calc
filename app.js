@@ -19,8 +19,6 @@ function generateMatrix() {
   document.getElementById('calc-btn').style.display = 'inline-block';
   document.getElementById('output').innerHTML = '';
 
-  // Dynamically set the bracket height/content
-  setMatrixBrackets(m);
 }
 
 function getMatrix() {
@@ -157,18 +155,40 @@ function powerIteration(A, num_iter=1000, tol=1e-10) {
   return {eigenvalue: lambda, eigenvector: b};
 }
 
-
-function calculateMatrix() {
-  const matrix = getMatrix();
-  let output = "<h3>Input Matrix</h3>" + matrixToHtml(matrix);
-
-  const refM = ref(matrix);
-  output += "<h3>Row Echelon Form (REF)</h3>" + matrixToHtml(refM);
-
-  const rrefM = rref(matrix);
-  output += "<h3>Reduced Row Echelon Form (RREF)</h3>" + matrixToHtml(rrefM);
-
-  document.getElementById('output').innerHTML = output;
+function transpose(M) {
+  return M[0].map((_, i) => M.map(row => row[i]));
 }
+
+function dot(u, v) {
+  let sum = 0;
+  for (let i = 0; i < u.length; i++) sum += u[i]*v[i];
+  return sum;
+}
+
+// Gram-Schmidt QR Decomposition
+function qrDecomposition(A) {
+  let n = A.length;
+  let Q = [];
+  let R = Array.from({length: n}, () => Array(n).fill(0));
+
+  // Deep copy of A's columns
+  let V = [];
+  for (let j = 0; j < n; j++)
+    V.push(A.map(row => row[j]));
+
+  for (let i = 0; i < n; i++) {
+    let v = V[i].slice();
+    for (let j = 0; j < i; j++) {
+      R[j][i] = dot(Q[j], V[i]);
+      for (let k = 0; k < n; k++) v[k] -= R[j][i] * Q[j][k];
+    }
+    R[i][i] = Math.sqrt(dot(v, v));
+    Q.push(v.map(x => x / (R[i][i] || 1e-12)));
+  }
+  // Reconstruct Q as columns
+  let Qmat = Array.from({length: n}, (_, i) => Q.map(col => col[i]));
+  return {Q: Qmat, R: R};
+}
+
 
 window.onload = generateMatrix;
