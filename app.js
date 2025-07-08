@@ -213,4 +213,55 @@ function qrAlgorithm(A, maxIter=100, tol=1e-8) {
   return Ak.map((row, i) => row[i]);
 }
 
+function findEigenvector(A, lambda) {
+  const n = A.length;
+  // Construct (A - lambda*I)
+  let M = [];
+  for (let i = 0; i < n; i++) {
+    M.push(A[i].map((val, j) => val - (i === j ? lambda : 0)));
+  }
+  // Augment with zero column
+  for (let i = 0; i < n; i++) M[i].push(0);
+
+  let rrefM = rref(M);
+
+  // Extract eigenvector (free variable = 1)
+  // This code picks last variable free, sets to 1
+  let x = Array(n).fill(0);
+  x[n-1] = 1;
+  for (let i = n-2; i >= 0; i--) {
+    let sum = 0;
+    for (let j = i+1; j < n; j++) {
+      sum += rrefM[i][j] * x[j];
+    }
+    x[i] = -sum;
+  }
+  return x;
+}
+
+function toFraction(x, tol=1e-8) {
+  if (Math.abs(x - Math.round(x)) < tol) return `${Math.round(x)}`;
+  let h1=1, h2=0, k1=0, k2=1, b=x;
+  do {
+    let a = Math.floor(b);
+    let aux = h1; h1 = a*h1 + h2; h2 = aux;
+    aux = k1; k1 = a*k1 + k2; k2 = aux;
+    b = 1/(b-a);
+  } while (Math.abs(x - h1/k1) > tol && k1 <= 10000);
+  if (k1 === 1) return `${h1}`;
+  return `<sup>${h1}</sup>&frasl;<sub>${k1}</sub>`;
+}
+
+function toSqrtOrNumber(x, tol=1e-8) {
+  let sq = Math.sqrt(x);
+  if (Math.abs(sq - Math.round(sq)) < tol) {
+    return `${Math.round(sq)}&sup2;`;
+  }
+  if (Math.abs(Math.round(sq * sq) - x) < tol) {
+    return `&radic;${Math.round(x)}`;
+  }
+  return null;
+}
+
+
 window.onload = generateMatrix;
