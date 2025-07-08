@@ -263,5 +263,76 @@ function toSqrtOrNumber(x, tol=1e-8) {
   return null;
 }
 
+function formatQuadraticRoots(a, b, c) {
+  // a*lambda^2 + b*lambda + c = 0
+  if (Math.abs(a) < 1e-12) return [];
+  // λ = (-b ± sqrt(b^2-4ac)) / (2a)
+  let D = b*b - 4*a*c;
+  if (D < 0) {
+    return ["Complex eigenvalues"];
+  }
+  let sqrtD = Math.sqrt(D);
+  // Symbolic if not perfect square:
+  if (Math.abs(Math.round(sqrtD)*Math.round(sqrtD) - D) < 1e-8) {
+    sqrtD = Math.round(sqrtD);
+    return [
+      `<span>(-${b} + ${sqrtD !== 1 ? sqrtD : ""})/(${2*a})</span>`,
+      `<span>(-${b} - ${sqrtD !== 1 ? sqrtD : ""})/(${2*a})</span>`
+    ];
+  }
+  // Otherwise show as ±sqrt
+  return [
+    `<span>(${(-b)} + &radic;${D})/(${2*a})</span>`,
+    `<span>(${(-b)} - &radic;${D})/(${2*a})</span>`
+  ];
+}
+
+function calculateMatrix() {
+  const matrix = getMatrix();
+  let output = "<h3>Input Matrix</h3>" + matrixToHtml(matrix);
+
+  const refM = ref(matrix);
+  output += "<h3>Row Echelon Form (REF)</h3>" + matrixToHtml(refM);
+
+  const rrefM = rref(matrix);
+  output += "<h3>Reduced Row Echelon Form (RREF)</h3>" + matrixToHtml(rrefM);
+
+  if (matrix.length === matrix[0].length) {
+    if (matrix.length === 2) {
+      // Symbolic eigenvalues for 2x2
+      let a = 1;
+      let b = -(matrix[0][0] + matrix[1][1]);
+      let c = matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0];
+      const symRoots = formatQuadraticRoots(a, b, c);
+      output += `<h3>Eigenvalues (symbolic, exact):</h3> ${symRoots.join(', ')}`;
+
+      // Also show decimals
+      let eigenvalues = qrAlgorithm(matrix, 200, 1e-10);
+      output += "<h3>Eigenvalues (approximate)</h3>" + eigenvalues.map(e =>
+        `${toFraction(e)} (${e.toFixed(6)})`
+      ).join(', ');
+
+      output += "<h3>Eigenvectors (approximate)</h3>";
+      eigenvalues.forEach((lambda, i) => {
+        let vec = findEigenvector(matrix, lambda);
+        output += `&lambda;<sub>${i+1}</sub> = ${toFraction(lambda)}: [${vec.map(x => toFraction(x)).join(', ')}]<br>`;
+      });
+    } else {
+      // For larger n, approximate only
+      let eigenvalues = qrAlgorithm(matrix, 200, 1e-10);
+      output += "<h3>Eigenvalues (approximate)</h3>" + eigenvalues.map(e =>
+        `${toFraction(e)} (${e.toFixed(6)})`
+      ).join(', ');
+
+      output += "<h3>Eigenvectors (approximate)</h3>";
+      eigenvalues.forEach((lambda, i) => {
+        let vec = findEigenvector(matrix, lambda);
+        output += `&lambda;<sub>${i+1}</sub> = ${toFraction(lambda)}: [${vec.map(x => toFraction(x)).join(', ')}]<br>`;
+      });
+    }
+  }
+
+  document.getElementById('output').innerHTML = output;
+}
 
 window.onload = generateMatrix;
