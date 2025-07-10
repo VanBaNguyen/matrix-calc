@@ -1,40 +1,58 @@
+function onModeChange() {
+  generateMatrix();
+}
+
+function isAxBMode() {
+  return document.getElementById('mode-axb').checked;
+}
+
 function generateMatrix() {
   const m = parseInt(document.getElementById('rows').value);
   const n = parseInt(document.getElementById('cols').value);
   const form = document.getElementById('matrix-form');
   form.innerHTML = '';
-  form.style.gridTemplateColumns = `repeat(${n}, 70px)`;
+  let numCols = isAxBMode() ? n + 1 : n; // add extra column for b
+
+  form.style.gridTemplateColumns = `repeat(${numCols}, 70px)`;
+
   for (let i = 0; i < m; ++i) {
-    for (let j = 0; j < n; ++j) {
+    for (let j = 0; j < numCols; ++j) {
       const inp = document.createElement('input');
       inp.type = 'number';
       inp.step = 'any';
       inp.id = `cell-${i}-${j}`;
-      inp.value = (i === j) ? 1 : 0;
       inp.inputMode = "numeric";
       inp.pattern = "\\d*";
+      // Fill diagonal with 1, b (last col) with 0
+      inp.value = (j === n) ? 0 : (i === j ? 1 : 0);
       form.appendChild(inp);
     }
   }
   document.getElementById('calc-btn').style.display = 'inline-block';
   document.getElementById('output').innerHTML = '';
-
 }
 
 function getMatrix() {
   const m = parseInt(document.getElementById('rows').value);
   const n = parseInt(document.getElementById('cols').value);
   let matrix = [];
+  let b = [];
+  let isAxB = isAxBMode();
+
   for (let i = 0; i < m; ++i) {
     let row = [];
-    for (let j = 0; j < n; ++j) {
+    for (let j = 0; j < (isAxB ? n + 1 : n); ++j) {
       let val = parseFloat(document.getElementById(`cell-${i}-${j}`).value);
-      row.push(isNaN(val) ? 0 : val);
+      if (isAxB && j === n) b.push(isNaN(val) ? 0 : val);
+      else row.push(isNaN(val) ? 0 : val);
     }
-    matrix.push(row);
+    if (isAxB) matrix.push(row); // matrix is A, b is separate
+    else matrix.push(row);       // matrix is full
   }
-  return matrix;
+  if (isAxB) return {A: matrix, b: b};
+  else return matrix;
 }
+
 
 function matrixToHtml(matrix) {
   return `<div class="matrix-display">${matrix.map(row =>
@@ -288,37 +306,35 @@ function formatQuadraticRoots(a, b, c) {
 }
 
 function calculateMatrix() {
-  const matrix = getMatrix();
-  let output = "<h3>Input Matrix</h3>" + matrixToHtml(matrix);
+  let isAxB = isAxBMode();
+  let output = "";
+  if (isAxB) {
+    const {A, b} = getMatrix();
+    output += "<h3>Input Matrix A</h3>" + matrixToHtml(A);
+    output += "<h3>Vector b</h3>" + matrixToHtml(b.map(x => [x]));
+    const {type, solution, rref, rref: rrefAug} = solveAxEqualsB(A, b);
+    output += "<h3>Augmented Matrix REF</h3>" + matrixToHtml(ref(A.map((row, i) => row.concat([b[i]]))));
+    output += "<h3>Augmented Matrix RREF</h3>" + matrixToHtml(rrefAug);
 
-  const refM = ref(matrix);
-  output += "<h3>Row Echelon Form (REF)</h3>" + matrixToHtml(refM);
+    if (type === "unique") {
+      output += "<h3>Solution Vector x</h3>" + matrixToHtml(solution.map(x => [x]));
+    } else if (type === "none") {
+      output += "<h3>No Solution</h3>";
+    } else if (type === "infinite") {
+      output += "<h3>Infinite Solutions (Free variables)</h3>";
+      // Could print rref or more info if you want
+    }
+  } else {
+    // original code
+    const matrix = getMatrix();
+    output = "<h3>Input Matrix</h3>" + matrixToHtml(matrix);
+    const refM = ref(matrix);
+    output += "<h3>Row Echelon Form (REF)</h3>" + matrixToHtml(refM);
 
-  const rrefM = rref(matrix);
-  output += "<h3>Reduced Row Echelon Form (RREF)</h3>" + matrixToHtml(rrefM);
+    const rrefM = rref(matrix);
+    output += "<h3>Reduced Row Echelon Form (RREF)</h3>" + matrixToHtml(rrefM);
 
-  if (matrix.length === matrix[0].length) {
-    if (matrix.length === 2) {
-      // Symbolic eigenvalues for 2x2
-      let a = 1;
-      let b = -(matrix[0][0] + matrix[1][1]);
-      let c = matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0];
-      const symRoots = formatQuadraticRoots(a, b, c);
-      output += `<h3>Eigenvalues (symbolic, exact):</h3> ${symRoots.join(', ')}`;
-
-      // Also show decimals
-      let eigenvalues = qrAlgorithm(matrix, 200, 1e-10);
-      output += "<h3>Eigenvalues (approximate)</h3>" + eigenvalues.map(e =>
-        `${toFraction(e)} (${e.toFixed(6)})`
-      ).join(', ');
-
-      output += "<h3>Eigenvectors (approximate)</h3>";
-      eigenvalues.forEach((lambda, i) => {
-        let vec = findEigenvector(matrix, lambda);
-        output += `&lambda;<sub>${i+1}</sub> = ${toFraction(lambda)}: [${vec.map(x => toFraction(x)).join(', ')}]<br>`;
-      });
-    } else {
-      // For larger n, approximate only
+    if (matrix.length === matrix[0].length) {
       let eigenvalues = qrAlgorithm(matrix, 200, 1e-10);
       output += "<h3>Eigenvalues (approximate)</h3>" + eigenvalues.map(e =>
         `${toFraction(e)} (${e.toFixed(6)})`
@@ -335,4 +351,7 @@ function calculateMatrix() {
   document.getElementById('output').innerHTML = output;
 }
 
-window.onload = generateMatrix;
+
+window.onload = function() {
+  onModeChange();
+};
