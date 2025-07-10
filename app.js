@@ -53,6 +53,43 @@ function getMatrix() {
   else return matrix;
 }
 
+function solveAxEqualsB(A, b) {
+  // Form the augmented matrix [A | b]
+  let aug = A.map((row, i) => row.concat([b[i]]));
+  let rrefAug = rref(aug);
+
+  // Check for no solution or infinite solutions
+  let m = A.length, n = A[0].length;
+  let solution = Array(n).fill(0);
+  let freeVars = [];
+
+  for (let i = 0; i < m; ++i) {
+    let pivotCol = rrefAug[i].findIndex(val => Math.abs(val) > 1e-8);
+    if (pivotCol === n) {
+      // Row: [0, 0, ..., 0, c] (c ≠ 0), so no solution
+      if (Math.abs(rrefAug[i][n]) > 1e-8) return {type: "none"};
+    }
+  }
+
+  // If n > m, system is underdetermined, might be infinite
+  // For simplicity, just solve unique solution or give "infinite"
+  let hasFreeVars = false;
+  for (let i = 0; i < n; ++i) {
+    let col = rrefAug.map(row => row[i]);
+    let nonzeroRows = col.reduce((c, v) => c + (Math.abs(v) > 1e-8 ? 1 : 0), 0);
+    if (nonzeroRows === 0) hasFreeVars = true;
+  }
+
+  if (hasFreeVars || m < n) return {type: "infinite", rref: rrefAug};
+
+  // Otherwise, extract solution from RREF
+  for (let i = 0; i < n; ++i) {
+    // Each row corresponds to x_i
+    solution[i] = rrefAug[i][n];
+  }
+  return {type: "unique", solution: solution, rref: rrefAug};
+}
+
 
 function matrixToHtml(matrix) {
   return `<div class="matrix-display">${matrix.map(row =>
