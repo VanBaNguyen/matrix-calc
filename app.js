@@ -25,6 +25,12 @@ function generateMatrix() {
       inp.pattern = "\\d*";
       // Fill diagonal with 1, b (last col) with 0
       inp.value = (j === n) ? 0 : (i === j ? 1 : 0);
+
+      // Add special class if it's the b column in Ax=b mode
+      if (isAxBMode() && j === n) {
+        inp.classList.add('b-vector-input');
+      }
+
       form.appendChild(inp);
     }
   }

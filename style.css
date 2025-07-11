@@ -98,3 +98,8 @@ button:hover {
   margin: 1em 0;
   font-family: monospace;
 }
+
+/* Add extra space before the b vector in Ax=b mode */
+.b-vector-input {
+  margin-left: 10px;
+}
