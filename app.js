@@ -300,19 +300,6 @@ function findEigenvector(A, lambda) {
   return x;
 }
 
-function toFraction(x, tol=1e-8) {
-  if (Math.abs(x - Math.round(x)) < tol) return `${Math.round(x)}`;
-  let h1=1, h2=0, k1=0, k2=1, b=x;
-  do {
-    let a = Math.floor(b);
-    let aux = h1; h1 = a*h1 + h2; h2 = aux;
-    aux = k1; k1 = a*k1 + k2; k2 = aux;
-    b = 1/(b-a);
-  } while (Math.abs(x - h1/k1) > tol && k1 <= 10000);
-  if (k1 === 1) return `${h1}`;
-  return `<sup>${h1}</sup>&frasl;<sub>${k1}</sub>`;
-}
-
 function toSqrtOrNumber(x, tol=1e-8) {
   let sq = Math.sqrt(x);
   if (Math.abs(sq - Math.round(sq)) < tol) {
@@ -380,14 +367,14 @@ function calculateMatrix() {
     if (matrix.length === matrix[0].length) {
       let eigenvalues = qrAlgorithm(matrix, 200, 1e-10);
       output += "<h3>Eigenvalues (approximate)</h3>" + eigenvalues.map(e =>
-        `${toFraction(e)} (${e.toFixed(6)})`
+        e.toFixed(6)
       ).join(', ');
 
       output += "<h3>Eigenvectors (approximate)</h3>";
       eigenvalues.forEach((lambda, i) => {
         let vec = findEigenvector(matrix, lambda);
-        output += `&lambda;<sub>${i+1}</sub> = ${toFraction(lambda)}: [${vec.map(x => toFraction(x)).join(', ')}]<br>`;
-      });
+        output += `&lambda;<sub>${i+1}</sub> = ${lambda.toFixed(6)}: [${vec.map(x => x.toFixed(6)).join(', ')}]<br>`;
+      });   
     }
   }
 
