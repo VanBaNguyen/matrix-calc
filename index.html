@@ -3,13 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Matrix REF & RREF Calculator (m × n)</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,500,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=JetBrains+Mono:400,600&display=swap" rel="stylesheet">
   <!-- Math.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/14.5.3/math.min.js"></script>
 </head>
-<body>
+<body class="theme-blue-glass">
   <div class="container">
-    <h1>Matrix Calculator</h1>
+    <h1>
+      <span style="font-weight:800;color:#8e54e9;">Matrix</span>
+      <span class="calculator-color">Calculator</span>
+    </h1>
     <div class="dimension-input">
       <label for="mode-matrix">
         <input type="radio" id="mode-matrix" name="inputMode" checked onchange="onModeChange()"> Matrix only (RREF/Eigen)
@@ -33,6 +38,14 @@
       <button id="calc-btn" style="display:none;" onclick="calculateMatrix()">Calculate REF & RREF</button>
     </div>
     <div id="output"></div>
+  </div>
+  <!-- Theme Switcher UI -->
+  <div id="theme-switcher">
+    <button class="theme-btn theme-forest-night" data-theme="forest-night" title="Forest Night"></button>
+    <button class="theme-btn theme-blue-glass" data-theme="blue-glass" title="Blue Glass"></button>
+    <button class="theme-btn theme-crimson-red" data-theme="crimson-red" title="Crimson Red"></button>
+    <button class="theme-btn theme-matrix-green" data-theme="matrix-green" title="Green"></button>
+    <button class="theme-btn theme-matrix-retro" data-theme="matrix-retro" title="Retro"></button>
   </div>
   <script src="app.js"></script>
 </body>
