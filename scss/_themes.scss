@@ -1,0 +1,64 @@
+/* ==== Theme: Blue Glass ==== */
+.theme-blue-glass {
+  --primary: #4776e6;
+  --secondary: #8e54e9;
+  --bg-gradient: linear-gradient(135deg, #4776e6 0%, #8e54e9 100%);
+  --glass: rgba(255,255,255,0.30);
+  --input-bg: rgba(255,255,255,0.7);
+  --card-bg: rgba(255,255,255,0.50);
+  --matrix-border: #a4b1ef;
+  --glow: 0 0 8px #9db1ff;
+  --text: #25285e;
+  --text-invert: #fff;
+  --hover: #375ab7;
+}
+
+/* ==== Theme: Matrix Green ==== */
+.theme-matrix-green {
+  --primary: #1cb67d;
+  --secondary: #60dfcd;
+  --bg-gradient: linear-gradient(135deg, #1cb67d 0%, #60dfcd 100%);
+  --glass: rgba(230,255,244,0.30);
+  --input-bg: rgba(244,255,250,0.75);
+  --card-bg: rgba(226,255,240,0.46);
+  --matrix-border: #8edbb3;
+  --glow: 0 0 8px #a4ffd2;
+  --text: #0a2a17;
+  --text-invert: #fff;
+  --hover: #1c8a66;
+}
+
+/* ==== Theme: Matrix Retro ==== */
+.theme-matrix-retro {
+  --primary: #ffb86c;
+  --secondary: #8be9fd;
+  --bg-gradient: linear-gradient(120deg, #ffb86c 0%, #8be9fd 100%);
+  --glass: rgba(255,235,195,0.29);
+  --input-bg: rgba(255,245,230,0.79);
+  --card-bg: rgba(255,239,209,0.59);
+  --matrix-border: #fddeaf;
+  --glow: 0 0 8px #ffb86c88;
+  --text: #45321c;
+  --text-invert: #fff;
+  --hover: #fdab54;
+}
+
+/* ==== Theme: Forest Night ==== */
+.theme-forest-night {
+  --primary: #39ff14;
+  --secondary: #17833d;
+  --bg-gradient: linear-gradient(
+    120deg,
+    #050a07 0%, #0d2a15 28%, #12261a 52%, #174427 70%, #17833d 82%, #0a1811 100%
+  );
+  --glass: rgba(16,28,18,0.56);
+  --input-bg: rgba(11,18,13,0.79);
+  --card-bg: rgba(22,61,32,0.18);
+  --matrix-border: #39ff14;
+  --glow: 0 0 10px #39ff1485;
+  --text: #e7fae7;
+  --text-invert: #232d22;
+  --hover: #39ff1477;
+}
+
+
