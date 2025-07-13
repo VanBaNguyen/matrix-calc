@@ -61,4 +61,66 @@
   --hover: #39ff1477;
 }
 
-
+/* Theme-specific overrides for Forest Night */
+.theme-forest-night body,
+.theme-forest-night #output,
+.theme-forest-night .matrix-display {
+  color: var(--text);
+}
+.theme-forest-night h1,
+.theme-forest-night h2,
+.theme-forest-night h3 {
+  color: #39ff14;
+}
+.theme-forest-night #output,
+.theme-forest-night .matrix-display {
+  color: #baffb6;
+}
+.theme-forest-night #output {
+  background: rgba(11, 18, 13, 0.97) !important;
+  color: #baffb6 !important;
+  box-shadow: 0 1px 12px #39ff1422;
+}
+.theme-forest-night .matrix-display {
+  background: #101c12 !important;
+  color: #baffb6 !important;
+  border-color: #39ff14 !important;
+  box-shadow: 0 0 10px #39ff1440;
+}
+.theme-forest-night #matrix-form input {
+  background: #111b14 !important;
+  color: #baffb6 !important;
+  border-color: #39ff14 !important;
+  box-shadow: 0 0 8px #39ff1460;
+}
+.theme-forest-night .matrix-bracket-wrap {
+  background: #0f1e13 !important;
+  border-color: #39ff14 !important;
+  box-shadow: 0 2px 18px #39ff1440;
+}
+.theme-forest-night #output h3 {
+  color: #39ff14 !important;
+}
+.theme-forest-night body {
+  background: var(--bg-gradient) !important;
+}
+.theme-forest-night .b-vector-input {
+  background: #112f19 !important;
+  color: #baffb6 !important;
+  border-color: #39ff14 !important;
+}
+.theme-forest-night .dimension-input label {
+  color: #e7fae7 !important;
+  font-weight: 500;
+}
+.theme-forest-night .dimension-input input[type="number"] {
+  background: #202f23 !important;
+  color: #e7fae7 !important;
+  border: 1.5px solid #39ff14 !important;
+}
+.theme-forest-night .dimension-input input[type="radio"] {
+  accent-color: #39ff14 !important;
+}
+.theme-forest-night .dimension-input {
+  color: #e7fae7 !important;
+}
