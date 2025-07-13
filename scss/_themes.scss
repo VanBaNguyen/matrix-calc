@@ -124,3 +124,79 @@
 .theme-forest-night .dimension-input {
   color: #e7fae7 !important;
 }
+
+/* ==== Theme: Crimson Red ==== */
+.theme-crimson-red {
+  --primary: #b11322;
+  --secondary: #ff4b6e;
+  --bg-gradient: linear-gradient(120deg, #2d0911 0%, #731a28 65%, #b11322 100%);
+  --glass: rgba(110,20,36,0.25);
+  --input-bg: rgba(120,28,44,0.78);
+  --card-bg: rgba(90,17,32,0.47);
+  --matrix-border: #ff4b6e;
+  --glow: 0 0 12px #ff4b6eaa;
+  --text: #ffdde3;
+  --text-invert: #2d0911;
+  --hover: #c91533e0;
+}
+
+/* Theme-specific overrides for Crimson Red */
+.theme-crimson-red #output {
+  background: rgba(61,13,22,0.92) !important;
+  color: #ffdde3 !important;
+  box-shadow: 0 1px 12px #c9153344;
+}
+.theme-crimson-red .matrix-display {
+  background: #7b1c2c !important;
+  color: #ffdde3 !important;
+  border-color: #ff4b6e !important;
+  box-shadow: 0 0 12px #ff4b6e44;
+}
+.theme-crimson-red #matrix-form input {
+  background: #882137 !important;
+  color: #ffdde3 !important;
+  border-color: #ff4b6e !important;
+  box-shadow: 0 0 8px #ff4b6e55;
+}
+.theme-crimson-red .matrix-bracket-wrap {
+  background: #5e1525 !important;
+  border-color: #ff4b6e !important;
+  box-shadow: 0 2px 18px #ff4b6e40;
+}
+.theme-crimson-red .b-vector-input {
+  background: #7e2637 !important;
+  color: #ffdde3 !important;
+  border-color: #ff4b6e !important;
+}
+.theme-crimson-red .dimension-input label {
+  color: #ff4b6e !important;
+}
+.theme-crimson-red .dimension-input input[type="number"] {
+  background: #882137 !important;
+  color: #ffdde3 !important;
+  border: 1.5px solid #ff4b6e !important;
+}
+.theme-crimson-red .dimension-input input[type="radio"] {
+  accent-color: #ff4b6e !important;
+}
+
+/* For each theme, define the Calculator color */
+.theme-blue-glass .calculator-color {
+  color: #8e54e9; 
+}
+
+.theme-matrix-green .calculator-color {
+  color: #1cb67d;
+}
+
+.theme-matrix-retro .calculator-color {
+  color: #ffb86c;
+}
+
+.theme-forest-night .calculator-color {
+  color: #39ff14;
+}
+
+.theme-crimson-red .calculator-color {
+  color: #ff4b6e;
+}
