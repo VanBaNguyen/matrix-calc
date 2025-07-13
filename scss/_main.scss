@@ -65,3 +65,27 @@ h1 {
   margin: 0 0.5em 0 0;
   cursor: pointer;
 }
+
+.dimension-input input[type="number"] {
+  width: 56px;
+  padding: 0.35em 0.1em;
+  background: var(--input-bg);
+  border: 1.5px solid #bbc6ed;
+  border-radius: 5px;
+  margin: 0 0.2em;
+  text-align: center;
+  font-size: 1em;
+  transition: border 0.18s, box-shadow 0.18s;
+  box-shadow: none;
+  outline: none;
+}
+
+.dimension-input input[type="number"]:focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 8px #b9aaff66;
+}
+
+input[type="radio"] {
+  accent-color: var(--primary);
+  vertical-align: middle;
+}
