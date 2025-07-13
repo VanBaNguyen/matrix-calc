@@ -8,3 +8,60 @@
   --matrix-border: #a4b1ef;
   --glow: 0 0 8px #9db1ff;
 }
+
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+body, #output, .matrix-display {
+  color: var(--text);
+}
+
+.container {
+  width: 100%;
+  max-width: 630px;
+  margin: 48px auto;
+  background: var(--glass);
+  backdrop-filter: blur(15px) saturate(160%);
+  padding: 2.2em 2.6em 2.6em 2.6em;
+  border-radius: 22px;
+  box-shadow: 0 8px 40px 0 rgba(62, 90, 190, 0.20), 0 1.5px 5px 0 #a4b1ef99;
+  border: 2px solid var(--card-bg);
+  transition: box-shadow 0.2s;
+}
+
+h1, h2, h3 {
+  color: var(--primary);
+}
+
+h1 {
+  text-align: center;
+  font-weight: 700;
+  font-size: 2.2em;
+  margin-bottom: 1.1em;
+  color: #233061;
+  letter-spacing: 0.02em;
+}
+
+.dimension-input {
+  display: flex;
+  align-items: center;
+  gap: 0.75em 1em;
+  margin-bottom: 1.4em;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.dimension-input label {
+  font-weight: 500;
+  color: #3a4986;
+  margin: 0 0.5em 0 0;
+  cursor: pointer;
+}
