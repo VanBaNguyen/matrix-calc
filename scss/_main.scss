@@ -147,3 +147,101 @@ input[type="radio"] {
   color: var(--text);
   background: var(--input-bg);
 }
+
+/* Visual marker for b vector input */
+.b-vector-input {
+  margin-left: 10px;
+  background: #ede4ff;
+  border-color: #bcaeff;
+  font-weight: 600;
+}
+
+.center-btn {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.6em;
+}
+
+button {
+  background: var(--primary);
+  background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
+  color: var(--text-invert);
+  border: none;
+  font-weight: 600;
+  font-size: 1.07em;
+  padding: 0.68em 2.2em;
+  border-radius: 7px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.19s, transform 0.15s, box-shadow 0.17s, color 0.14s;
+  box-shadow: 0 2px 14px 0 #8e54e944;
+}
+
+button:hover, button:focus {
+  background: var(--hover);
+  color: var(--primary);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 5px 24px 0 var(--hover);
+}
+
+#output {
+  margin-top: 2.2em;
+  font-size: 1.07em;
+  color: #25285e;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.14);
+  padding: 1.1em 1.3em 1.3em 1.3em;
+  box-shadow: 0 1px 6px 0 #adb7ed33;
+  word-break: break-word;
+}
+
+.matrix-display {
+  margin: 1em 0;
+  font-family: 'JetBrains Mono', monospace;
+  background: #f5f6fe;
+  border-radius: 8px;
+  padding: 0.8em 0.9em;
+  box-shadow: 0 0 3px #8e54e933;
+  border: 1.2px solid #dadbfa;
+  font-size: 1.08em;
+  color: #404073;
+  display: inline-block;
+  min-width: 170px;
+}
+
+/* Output section headings */
+#output h3 {
+  color: #4e56aa;
+  margin: 1.2em 0 0.5em 0;
+  font-size: 1.08em;
+  letter-spacing: 0.01em;
+}
+
+/* Responsive tweaks */
+@media (max-width: 700px) {
+  .container {
+    padding: 1em 0.7em 1.4em 0.7em;
+  }
+  .matrix-bracket-wrap {
+    padding: 12px 4px;
+  }
+  #matrix-form input {
+    width: 48px;
+    height: 33px;
+    font-size: 1em;
+  }
+  .matrix-display {
+    min-width: 90px;
+    font-size: 1em;
+    padding: 0.55em 0.6em;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  background: #eaeef9;
+}
+::-webkit-scrollbar-thumb {
+  background: #a4b1ef55;
+  border-radius: 7px;
+}
