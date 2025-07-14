@@ -1,15 +1,14 @@
 "use strict";
 
-/* ----------  tiny complex helpers  --------------------------------- */
-const EPS  = 1e-12;                     // arithmetic tolerance
+const EPS  = 1e-12; // arithmetic tolerance
 const ZERO = math.complex(0, 0);
 
-const cAbs  = x          => math.abs(x);
-const cAdd  = (a, b)     => math.add(a, b);
-const cSub  = (a, b)     => math.subtract(a, b);
-const cMul  = (a, b)     => math.multiply(a, b);
-const cDiv  = (a, b)     => math.divide(a, b);
-const cConj = x          => math.conj(x);
+const cAbs  = x => math.abs(x);
+const cAdd  = (a, b) => math.add(a, b);
+const cSub  = (a, b) => math.subtract(a, b);
+const cMul  = (a, b) => math.multiply(a, b);
+const cDiv  = (a, b) => math.divide(a, b);
+const cConj = x => math.conj(x);
 const isZero = (x,eps=EPS) => cAbs(x) < eps;
 
 /* nicer string for table display (2 dp, preserves imaginary part) */
@@ -30,8 +29,8 @@ function isAxBMode()    { return document.getElementById("mode-axb").checked; }
 
 /* build / rebuild the input grid */
 function generateMatrix() {
-  const m    = +document.getElementById("rows").value;
-  const n    = +document.getElementById("cols").value;
+  const m = +document.getElementById("rows").value;
+  const n = +document.getElementById("cols").value;
   const form = document.getElementById("matrix-form");
   form.innerHTML = "";
 
@@ -40,9 +39,9 @@ function generateMatrix() {
 
   for (let i = 0; i < m; ++i) {
     for (let j = 0; j < totalCols; ++j) {
-      const inp        = document.createElement("input");
-      inp.type         = "text";          // allows “3+4i”, “-2i”, etc.
-      inp.id           = `cell-${i}-${j}`;
+      const inp = document.createElement("input");
+      inp.type = "text";          // allows “3+4i”, “-2i”, etc.
+      inp.id = `cell-${i}-${j}`;
       inp.autocomplete = "off";
       inp.value = (j === n)           ? "0" :      // b-vector default
                   (i === j && j < n) ? "1" : "0";  // identity default
@@ -56,8 +55,8 @@ function generateMatrix() {
 
 /* read inputs ⇒ plain JS arrays (numbers or math.Complex) */
 function getMatrix() {
-  const m   = +document.getElementById("rows").value;
-  const n   = +document.getElementById("cols").value;
+  const m= +document.getElementById("rows").value;
+  const n = +document.getElementById("cols").value;
   const axb = isAxBMode();
 
   const A = [], b = [];
@@ -88,7 +87,7 @@ function ref(mat)  { return _gauss(mat, false); }
 function rref(mat) { return _gauss(mat, true ); }
 
 function _gauss(matrix, reduced) {
-  const arr  = matrix.map(r => r.slice());           // deep copy
+  const arr = matrix.map(r => r.slice());           // deep copy
   const rows = arr.length;
   const cols = arr[0].length;
   let lead   = 0;
@@ -155,7 +154,7 @@ function qrDecomp(A) {
   const R = Array.from({length:n}, () => Array(n).fill(ZERO));
   const Qcols = [];
 
-  const V = [];                              // columns of A
+  const V = [];     // columns of A
   for (let j = 0; j < n; ++j) V.push(A.map(r => r[j]));
 
   for (let i = 0; i < n; ++i) {
@@ -191,7 +190,7 @@ function qrEigenvalues(A, maxIter=150, tol=1e-9) {
 
   for (let iter=0; iter<maxIter; ++iter) {
     const {Q,R} = qrDecomp(Ak);
-    const next  = matMul(R,Q);
+    const next = matMul(R,Q);
 
     let delta = 0;
     for (let i=0;i<n;++i)
@@ -281,11 +280,11 @@ function calculateMatrix() {
       html += "<h3>Eigenvalues (approx.)</h3>" +
               eigVals.map((e,i)=>`λ<sub>${i+1}</sub>=${nice(e)}`).join(", ");
 
-      html += "<h3>Eigenvectors (approx.)</h3>";
-      eigVals.forEach((λ,i)=>{
-        const v = findEigenvector(M, λ);
-        html += `λ<sub>${i+1}</sub>: [${v.map(nice).join(", ")}]<br>`;
-      });
+      // html += "<h3>Eigenvectors (approx.)</h3>";
+      // eigVals.forEach((λ,i)=>{
+      //   const v = findEigenvector(M, λ);
+      //   html += `λ<sub>${i+1}</sub>: [${v.map(nice).join(", ")}]<br>`;
+      // });
     }
   }
   document.getElementById("output").innerHTML = html;
