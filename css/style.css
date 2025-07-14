@@ -1,0 +1,533 @@
+:root {
+  --primary: #4776e6;
+  --secondary: #8e54e9;
+  --bg-gradient: linear-gradient(135deg, #4776e6 0%, #8e54e9 100%);
+  --glass: rgba(255,255,255,0.30);
+  --input-bg: rgba(255,255,255,0.7);
+  --card-bg: rgba(255,255,255,0.50);
+  --matrix-border: #a4b1ef;
+  --glow: 0 0 8px #9db1ff;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+body, #output, .matrix-display {
+  color: var(--text);
+}
+
+.container {
+  width: 100%;
+  max-width: 630px;
+  margin: 48px auto;
+  background: var(--glass);
+  backdrop-filter: blur(15px) saturate(160%);
+  padding: 2.2em 2.6em 2.6em 2.6em;
+  border-radius: 22px;
+  box-shadow: 0 8px 40px 0 rgba(62, 90, 190, 0.2), 0 1.5px 5px 0 rgba(164, 177, 239, 0.6);
+  border: 2px solid var(--card-bg);
+  transition: box-shadow 0.2s;
+}
+
+h1, h2, h3 {
+  color: var(--primary);
+}
+
+h1 {
+  text-align: center;
+  font-weight: 700;
+  font-size: 2.2em;
+  margin-bottom: 1.1em;
+  color: #233061;
+  letter-spacing: 0.02em;
+}
+
+.dimension-input {
+  display: flex;
+  align-items: center;
+  gap: 0.75em 1em;
+  margin-bottom: 1.4em;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.dimension-input label {
+  font-weight: 500;
+  color: #3a4986;
+  margin: 0 0.5em 0 0;
+  cursor: pointer;
+}
+
+.dimension-input input[type=number] {
+  width: 56px;
+  padding: 0.35em 0.1em;
+  background: var(--input-bg);
+  border: 1.5px solid #bbc6ed;
+  border-radius: 5px;
+  margin: 0 0.2em;
+  text-align: center;
+  font-size: 1em;
+  transition: border 0.18s, box-shadow 0.18s;
+  box-shadow: none;
+  outline: none;
+}
+
+.dimension-input input[type=number]:focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 8px rgba(185, 170, 255, 0.4);
+}
+
+input[type=radio] {
+  accent-color: var(--primary);
+  vertical-align: middle;
+}
+
+.matrix-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5em 0;
+}
+
+.matrix-bracket-wrap {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 24px 18px;
+  box-shadow: 0 2px 10px 0 rgba(173, 173, 240, 0.4);
+  border: 1.5px solid var(--matrix-border);
+}
+
+#matrix-form {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 1em;
+  position: relative;
+  min-width: 80px;
+}
+
+#matrix-form input {
+  width: 70px;
+  height: 42px;
+  padding: 0.35em;
+  background: var(--input-bg);
+  text-align: center;
+  font-size: 1.23em;
+  font-family: "JetBrains Mono", monospace;
+  border: 2px solid #b3bef4;
+  border-radius: 6px;
+  box-shadow: var(--glow);
+  transition: border 0.16s, box-shadow 0.18s;
+}
+
+#matrix-form input:focus {
+  border-color: var(--secondary);
+  background: #eef2fc;
+  box-shadow: 0 0 10px rgba(168, 132, 255, 0.5333333333);
+}
+
+#matrix-form input[type=number]::-webkit-inner-spin-button,
+#matrix-form input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#matrix-form input[type=number] {
+  -moz-appearance: textfield;
+}
+
+#matrix-form input,
+.matrix-display {
+  color: var(--text);
+  background: var(--input-bg);
+}
+
+/* Visual marker for b vector input */
+.b-vector-input {
+  margin-left: 10px;
+  background: #ede4ff;
+  border-color: #bcaeff;
+  font-weight: 600;
+}
+
+.center-btn {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.6em;
+}
+
+button {
+  background: var(--primary);
+  background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
+  color: var(--text-invert);
+  border: none;
+  font-weight: 600;
+  font-size: 1.07em;
+  padding: 0.68em 2.2em;
+  border-radius: 7px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.19s, transform 0.15s, box-shadow 0.17s, color 0.14s;
+  box-shadow: 0 2px 14px 0 rgba(142, 84, 233, 0.2666666667);
+}
+
+button:hover, button:focus {
+  background: var(--hover);
+  color: var(--primary);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 5px 24px 0 var(--hover);
+}
+
+#output {
+  margin-top: 2.2em;
+  font-size: 1.07em;
+  color: #25285e;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  padding: 1.1em 1.3em 1.3em 1.3em;
+  box-shadow: 0 1px 6px 0 rgba(173, 183, 237, 0.2);
+  word-break: break-word;
+}
+
+.matrix-display {
+  margin: 1em 0;
+  font-family: "JetBrains Mono", monospace;
+  background: #f5f6fe;
+  border-radius: 8px;
+  padding: 0.8em 0.9em;
+  box-shadow: 0 0 3px rgba(142, 84, 233, 0.2);
+  border: 1.2px solid #dadbfa;
+  font-size: 1.08em;
+  color: #404073;
+  display: inline-block;
+  min-width: 170px;
+}
+
+/* Output section headings */
+#output h3 {
+  color: #4e56aa;
+  margin: 1.2em 0 0.5em 0;
+  font-size: 1.08em;
+  letter-spacing: 0.01em;
+}
+
+/* Responsive tweaks */
+@media (max-width: 700px) {
+  .container {
+    padding: 1em 0.7em 1.4em 0.7em;
+  }
+  .matrix-bracket-wrap {
+    padding: 12px 4px;
+  }
+  #matrix-form input {
+    width: 48px;
+    height: 33px;
+    font-size: 1em;
+  }
+  .matrix-display {
+    min-width: 90px;
+    font-size: 1em;
+    padding: 0.55em 0.6em;
+  }
+}
+::-webkit-scrollbar {
+  width: 7px;
+  background: #eaeef9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(164, 177, 239, 0.3333333333);
+  border-radius: 7px;
+}
+
+/* Theme SWITCH START */
+#theme-switcher {
+  position: fixed;
+  z-index: 99;
+  bottom: 22px;
+  right: 26px;
+  display: flex;
+  gap: 0.7em;
+  background: rgba(255, 255, 255, 0.13);
+  padding: 0.6em 1em 0.6em 1em;
+  border-radius: 22px;
+  box-shadow: 0 2px 12px 0 rgba(136, 136, 136, 0.1333333333);
+  align-items: center;
+  backdrop-filter: blur(5px) saturate(120%);
+  border: 1.5px solid #f3f3fb;
+}
+
+.theme-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px; /* Square with slightly rounded edges */
+  border: 2.5px solid #fff;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.0666666667);
+  transition: border 0.18s, transform 0.13s;
+  position: relative;
+  display: inline-block;
+}
+
+.theme-btn {
+  color: var(--text);
+  background-blend-mode: luminosity;
+}
+
+.theme-btn:focus,
+.theme-btn.selected {
+  border: 2.5px solid var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
+  transform: scale(1.08);
+}
+
+/* Tooltip styling stays the same */
+.theme-btn[title]:hover:after {
+  content: attr(title);
+  position: absolute;
+  bottom: -2.2em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  font-size: 0.89em;
+  padding: 2px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0.95;
+  z-index: 20;
+}
+
+/* ==== Theme: Blue Glass ==== */
+.theme-blue-glass {
+  --primary: #4776e6;
+  --secondary: #8e54e9;
+  --bg-gradient: linear-gradient(135deg, #4776e6 0%, #8e54e9 100%);
+  --glass: rgba(255,255,255,0.30);
+  --input-bg: rgba(255,255,255,0.7);
+  --card-bg: rgba(255,255,255,0.50);
+  --matrix-border: #a4b1ef;
+  --glow: 0 0 8px #9db1ff;
+  --text: #25285e;
+  --text-invert: #fff;
+  --hover: #375ab7;
+}
+
+/* ==== Theme: Matrix Green ==== */
+.theme-matrix-green {
+  --primary: #1cb67d;
+  --secondary: #60dfcd;
+  --bg-gradient: linear-gradient(135deg, #1cb67d 0%, #60dfcd 100%);
+  --glass: rgba(230,255,244,0.30);
+  --input-bg: rgba(244,255,250,0.75);
+  --card-bg: rgba(226,255,240,0.46);
+  --matrix-border: #8edbb3;
+  --glow: 0 0 8px #a4ffd2;
+  --text: #0a2a17;
+  --text-invert: #fff;
+  --hover: #1c8a66;
+}
+
+/* ==== Theme: Matrix Retro ==== */
+.theme-matrix-retro {
+  --primary: #ffb86c;
+  --secondary: #8be9fd;
+  --bg-gradient: linear-gradient(120deg, #ffb86c 0%, #8be9fd 100%);
+  --glass: rgba(255,235,195,0.29);
+  --input-bg: rgba(255,245,230,0.79);
+  --card-bg: rgba(255,239,209,0.59);
+  --matrix-border: #fddeaf;
+  --glow: 0 0 8px #ffb86c88;
+  --text: #45321c;
+  --text-invert: #fff;
+  --hover: #fdab54;
+}
+
+/* ==== Theme: Forest Night ==== */
+.theme-forest-night {
+  --primary: #39ff14;
+  --secondary: #17833d;
+  --bg-gradient: linear-gradient(
+    120deg,
+    #050a07 0%, #0d2a15 28%, #12261a 52%, #174427 70%, #17833d 82%, #0a1811 100%
+  );
+  --glass: rgba(16,28,18,0.56);
+  --input-bg: rgba(11,18,13,0.79);
+  --card-bg: rgba(22,61,32,0.18);
+  --matrix-border: #39ff14;
+  --glow: 0 0 10px #39ff1485;
+  --text: #e7fae7;
+  --text-invert: #232d22;
+  --hover: #39ff1477; /* Neon green glow */
+}
+
+/* Theme-specific overrides for Forest Night */
+.theme-forest-night body,
+.theme-forest-night #output,
+.theme-forest-night .matrix-display {
+  color: var(--text);
+}
+
+.theme-forest-night h1,
+.theme-forest-night h2,
+.theme-forest-night h3 {
+  color: #39ff14;
+}
+
+.theme-forest-night #output,
+.theme-forest-night .matrix-display {
+  color: #baffb6;
+}
+
+.theme-forest-night #output {
+  background: rgba(11, 18, 13, 0.97) !important;
+  color: #baffb6 !important;
+  box-shadow: 0 1px 12px rgba(57, 255, 20, 0.1333333333);
+}
+
+.theme-forest-night .matrix-display {
+  background: #101c12 !important;
+  color: #baffb6 !important;
+  border-color: #39ff14 !important;
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2509803922);
+}
+
+.theme-forest-night #matrix-form input {
+  background: #111b14 !important;
+  color: #baffb6 !important;
+  border-color: #39ff14 !important;
+  box-shadow: 0 0 8px rgba(57, 255, 20, 0.3764705882);
+}
+
+.theme-forest-night .matrix-bracket-wrap {
+  background: #0f1e13 !important;
+  border-color: #39ff14 !important;
+  box-shadow: 0 2px 18px rgba(57, 255, 20, 0.2509803922);
+}
+
+.theme-forest-night #output h3 {
+  color: #39ff14 !important;
+}
+
+.theme-forest-night body {
+  background: var(--bg-gradient) !important;
+}
+
+.theme-forest-night .b-vector-input {
+  background: #112f19 !important;
+  color: #baffb6 !important;
+  border-color: #39ff14 !important;
+}
+
+.theme-forest-night .dimension-input label {
+  color: #e7fae7 !important;
+  font-weight: 500;
+}
+
+.theme-forest-night .dimension-input input[type=number] {
+  background: #202f23 !important;
+  color: #e7fae7 !important;
+  border: 1.5px solid #39ff14 !important;
+}
+
+.theme-forest-night .dimension-input input[type=radio] {
+  accent-color: #39ff14 !important;
+}
+
+.theme-forest-night .dimension-input {
+  color: #e7fae7 !important;
+}
+
+/* ==== Theme: Crimson Red ==== */
+.theme-crimson-red {
+  --primary: #b11322;
+  --secondary: #ff4b6e;
+  --bg-gradient: linear-gradient(120deg, #2d0911 0%, #731a28 65%, #b11322 100%);
+  --glass: rgba(110,20,36,0.25);
+  --input-bg: rgba(120,28,44,0.78);
+  --card-bg: rgba(90,17,32,0.47);
+  --matrix-border: #ff4b6e;
+  --glow: 0 0 12px #ff4b6eaa;
+  --text: #ffdde3;
+  --text-invert: #2d0911;
+  --hover: #c91533e0;
+}
+
+/* Theme-specific overrides for Crimson Red */
+.theme-crimson-red #output {
+  background: rgba(61, 13, 22, 0.92) !important;
+  color: #ffdde3 !important;
+  box-shadow: 0 1px 12px rgba(201, 21, 51, 0.2666666667);
+}
+
+.theme-crimson-red .matrix-display {
+  background: #7b1c2c !important;
+  color: #ffdde3 !important;
+  border-color: #ff4b6e !important;
+  box-shadow: 0 0 12px rgba(255, 75, 110, 0.2666666667);
+}
+
+.theme-crimson-red #matrix-form input {
+  background: #882137 !important;
+  color: #ffdde3 !important;
+  border-color: #ff4b6e !important;
+  box-shadow: 0 0 8px rgba(255, 75, 110, 0.3333333333);
+}
+
+.theme-crimson-red .matrix-bracket-wrap {
+  background: #5e1525 !important;
+  border-color: #ff4b6e !important;
+  box-shadow: 0 2px 18px rgba(255, 75, 110, 0.2509803922);
+}
+
+.theme-crimson-red .b-vector-input {
+  background: #7e2637 !important;
+  color: #ffdde3 !important;
+  border-color: #ff4b6e !important;
+}
+
+.theme-crimson-red .dimension-input label {
+  color: #ff4b6e !important;
+}
+
+.theme-crimson-red .dimension-input input[type=number] {
+  background: #882137 !important;
+  color: #ffdde3 !important;
+  border: 1.5px solid #ff4b6e !important;
+}
+
+.theme-crimson-red .dimension-input input[type=radio] {
+  accent-color: #ff4b6e !important;
+}
+
+/* For each theme, define the Calculator color */
+.theme-blue-glass .calculator-color {
+  color: #8e54e9; /* Blue-violet */
+}
+
+.theme-matrix-green .calculator-color {
+  color: #1cb67d; /* Main green */
+}
+
+.theme-matrix-retro .calculator-color {
+  color: #ffb86c; /* Retro orange */
+}
+
+.theme-forest-night .calculator-color {
+  color: #39ff14; /* Neon green */
+}
+
+.theme-crimson-red .calculator-color {
+  color: #ff4b6e; /* Bright red-pink */
+}
+
+/*# sourceMappingURL=style.css.map */

@@ -385,3 +385,35 @@ function calculateMatrix() {
 window.onload = function() {
   onModeChange();
 };
+
+// === Theme Switcher ===
+const THEME_KEY = 'matrixcalc-theme';
+const themes = [
+  'blue-glass',
+  'forest-night',
+  'crimson-red',
+  'matrix-retro',
+  'matrix-green'
+];
+function applyTheme(themeName) {
+  const body = document.body;
+  for (let t of themes) body.classList.remove(`theme-${t}`);
+  body.classList.add(`theme-${themeName}`);
+  // Button visual highlight
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.theme === themeName);
+  });
+  localStorage.setItem(THEME_KEY, themeName);
+}
+
+// On load, apply saved theme or default
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem(THEME_KEY) || 'blue-glass';
+  applyTheme(saved);
+  // Setup event listeners for theme buttons
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      applyTheme(btn.dataset.theme);
+    });
+  });
+});
