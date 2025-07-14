@@ -1,390 +1,299 @@
-function onModeChange() {
-  generateMatrix();
+"use strict";
+
+/* ----------  tiny complex helpers  --------------------------------- */
+const EPS  = 1e-12;                     // arithmetic tolerance
+const ZERO = math.complex(0, 0);
+
+const cAbs  = x          => math.abs(x);
+const cAdd  = (a, b)     => math.add(a, b);
+const cSub  = (a, b)     => math.subtract(a, b);
+const cMul  = (a, b)     => math.multiply(a, b);
+const cDiv  = (a, b)     => math.divide(a, b);
+const cConj = x          => math.conj(x);
+const isZero = (x,eps=EPS) => cAbs(x) < eps;
+
+/* nicer string for table display (2 dp, preserves imaginary part) */
+function nice(x) {
+  if (math.typeOf(x) === "Complex") {
+    const re = Math.abs(x.re) < EPS ? 0 : +x.re.toFixed(2);
+    const im = Math.abs(x.im) < EPS ? 0 : +x.im.toFixed(2);
+    if (im === 0) return `${re}`;
+    if (re === 0) return `${im}i`;
+    return `${re}${im >= 0 ? "+" : ""}${im}i`;
+  }
+  return +(+x).toFixed(2);
 }
 
-function isAxBMode() {
-  return document.getElementById('mode-axb').checked;
-}
+/* ----------  UI helpers  ------------------------------------------- */
+function onModeChange() { generateMatrix(); }
+function isAxBMode()    { return document.getElementById("mode-axb").checked; }
 
+/* build / rebuild the input grid */
 function generateMatrix() {
-  const m = parseInt(document.getElementById('rows').value);
-  const n = parseInt(document.getElementById('cols').value);
-  const form = document.getElementById('matrix-form');
-  form.innerHTML = '';
-  let numCols = isAxBMode() ? n + 1 : n; // add extra column for b
+  const m    = +document.getElementById("rows").value;
+  const n    = +document.getElementById("cols").value;
+  const form = document.getElementById("matrix-form");
+  form.innerHTML = "";
 
-  form.style.gridTemplateColumns = `repeat(${numCols}, 70px)`;
+  const totalCols = isAxBMode() ? n + 1 : n;
+  form.style.gridTemplateColumns = `repeat(${totalCols}, 70px)`;
 
   for (let i = 0; i < m; ++i) {
-    for (let j = 0; j < numCols; ++j) {
-      const inp = document.createElement('input');
-      inp.type = 'number';
-      inp.step = 'any';
-      inp.id = `cell-${i}-${j}`;
-      inp.inputMode = "numeric";
-      inp.pattern = "\\d*";
-      // Fill diagonal with 1, b (last col) with 0
-      inp.value = (j === n) ? 0 : (i === j ? 1 : 0);
-
-      // Add special class if it's the b column in Ax=b mode
-      if (isAxBMode() && j === n) {
-        inp.classList.add('b-vector-input');
-      }
-
+    for (let j = 0; j < totalCols; ++j) {
+      const inp        = document.createElement("input");
+      inp.type         = "text";          // allows “3+4i”, “-2i”, etc.
+      inp.id           = `cell-${i}-${j}`;
+      inp.autocomplete = "off";
+      inp.value = (j === n)           ? "0" :      // b-vector default
+                  (i === j && j < n) ? "1" : "0";  // identity default
+      if (isAxBMode() && j === n) inp.classList.add("b-vector-input");
       form.appendChild(inp);
     }
   }
-  document.getElementById('calc-btn').style.display = 'inline-block';
-  document.getElementById('output').innerHTML = '';
+  document.getElementById("calc-btn").style.display = "inline-block";
+  document.getElementById("output").innerHTML = "";
 }
 
+/* read inputs ⇒ plain JS arrays (numbers or math.Complex) */
 function getMatrix() {
-  const m = parseInt(document.getElementById('rows').value);
-  const n = parseInt(document.getElementById('cols').value);
-  let matrix = [];
-  let b = [];
-  let isAxB = isAxBMode();
+  const m   = +document.getElementById("rows").value;
+  const n   = +document.getElementById("cols").value;
+  const axb = isAxBMode();
 
+  const A = [], b = [];
   for (let i = 0; i < m; ++i) {
-    let row = [];
-    for (let j = 0; j < (isAxB ? n + 1 : n); ++j) {
-      let val = parseFloat(document.getElementById(`cell-${i}-${j}`).value);
-      if (isAxB && j === n) b.push(isNaN(val) ? 0 : val);
-      else row.push(isNaN(val) ? 0 : val);
+    const row = [];
+    for (let j = 0; j < (axb ? n + 1 : n); ++j) {
+      const str = (document.getElementById(`cell-${i}-${j}`).value || "0").trim();
+      let val;
+      try { val = math.evaluate(str); } catch { val = 0; }
+      if (typeof val === "number") val = +val;        // primitive
+      if (axb && j === n) b.push(val);
+      else                row.push(val);
     }
-    if (isAxB) matrix.push(row); // matrix is A, b is separate
-    else matrix.push(row);       // matrix is full
+    A.push(row);
   }
-  if (isAxB) return {A: matrix, b: b};
-  else return matrix;
+  return axb ? {A, b} : A;
 }
 
-function solveAxEqualsB(A, b) {
-  // Form the augmented matrix [A | b]
-  let aug = A.map((row, i) => row.concat([b[i]]));
-  let rrefAug = rref(aug);
-
-  // Check for no solution or infinite solutions
-  let m = A.length, n = A[0].length;
-  let solution = Array(n).fill(0);
-  let freeVars = [];
-
-  for (let i = 0; i < m; ++i) {
-    let pivotCol = rrefAug[i].findIndex(val => Math.abs(val) > 1e-8);
-    if (pivotCol === n) {
-      // Row: [0, 0, ..., 0, c] (c ≠ 0), so no solution
-      if (Math.abs(rrefAug[i][n]) > 1e-8) return {type: "none"};
-    }
-  }
-
-  // If n > m, system is underdetermined, might be infinite
-  // For simplicity, just solve unique solution or give "infinite"
-  let hasFreeVars = false;
-  for (let i = 0; i < n; ++i) {
-    let col = rrefAug.map(row => row[i]);
-    let nonzeroRows = col.reduce((c, v) => c + (Math.abs(v) > 1e-8 ? 1 : 0), 0);
-    if (nonzeroRows === 0) hasFreeVars = true;
-  }
-
-  if (hasFreeVars || m < n) return {type: "infinite", rref: rrefAug};
-
-  // Otherwise, extract solution from RREF
-  for (let i = 0; i < n; ++i) {
-    // Each row corresponds to x_i
-    solution[i] = rrefAug[i][n];
-  }
-  return {type: "unique", solution: solution, rref: rrefAug};
+/* pretty-print matrix / vector → HTML */
+function toHtml(mat) {
+  return `<div class="matrix-display">${
+    mat.map(r => "[" + r.map(nice).join(", ") + "]").join("<br>")
+  }</div>`;
 }
 
+/* ----------  Gauss / REF / RREF  ----------------------------------- */
+function ref(mat)  { return _gauss(mat, false); }
+function rref(mat) { return _gauss(mat, true ); }
 
-function matrixToHtml(matrix) {
-  return `<div class="matrix-display">${matrix.map(row =>
-    '[' + row.map(x => Number(x).toFixed(2)).join(', ') + ']'
-  ).join('<br>')}</div>`;
-}
+function _gauss(matrix, reduced) {
+  const arr  = matrix.map(r => r.slice());           // deep copy
+  const rows = arr.length;
+  const cols = arr[0].length;
+  let lead   = 0;
 
-function ref(matrix) {
-  matrix = matrix.map(row => row.slice());
-  let lead = 0;
-  let rowCount = matrix.length;
-  let colCount = matrix[0].length;
-  for (let r = 0; r < rowCount; r++) {
-    if (colCount <= lead) return matrix;
+  for (let r = 0; r < rows && lead < cols; ++r, ++lead) {
+    /* 1. find pivot row */
     let i = r;
-    while (matrix[i][lead] === 0) {
-      i++;
-      if (i === rowCount) {
-        i = r;
-        lead++;
-        if (colCount === lead) return matrix;
-      }
-    }
-    let tmp = matrix[i];
-    matrix[i] = matrix[r];
-    matrix[r] = tmp;
+    while (i < rows && isZero(arr[i][lead])) ++i;
+    if (i === rows) { --r; continue; }               // no pivot → next col
 
-    let val = matrix[r][lead];
-    if (val !== 0) {
-      for (let j = 0; j < colCount; j++) matrix[r][j] /= val;
-    }
+    /* 2. swap into place */
+    [arr[i], arr[r]] = [arr[r], arr[i]];
 
-    for (let i = r + 1; i < rowCount; i++) {
-      let val = matrix[i][lead];
-      for (let j = 0; j < colCount; j++) {
-        matrix[i][j] -= val * matrix[r][j];
-      }
-    }
-    lead++;
-  }
-  return matrix;
-}
+    /* 3. scale pivot row to make pivot = 1 */
+    const piv = arr[r][lead];
+    for (let j = 0; j < cols; ++j) arr[r][j] = cDiv(arr[r][j], piv);
 
-function rref(matrix) {
-  if (typeof math.rref === 'function') {
-    return math.rref(matrix);
-  }
-  let m = math.matrix(matrix);
-  let nRows = m.size()[0];
-  let nCols = m.size()[1];
-  let lead = 0;
-  let arr = m.toArray();
-  for (let r = 0; r < nRows; r++) {
-    if (nCols <= lead) return arr;
-    let i = r;
-    while (arr[i][lead] === 0) {
-      i++;
-      if (i === nRows) {
-        i = r;
-        lead++;
-        if (nCols === lead) return arr;
-      }
+    /* 4. clear column */
+    for (let k = 0; k < rows; ++k) {
+      if (k === r) continue;
+      if (!reduced && k < r) continue;               // REF: only below
+      const factor = arr[k][lead];
+      if (isZero(factor)) continue;
+      for (let j = 0; j < cols; ++j)
+        arr[k][j] = cSub(arr[k][j], cMul(factor, arr[r][j]));
     }
-    let tmp = arr[i];
-    arr[i] = arr[r];
-    arr[r] = tmp;
-
-    let val = arr[r][lead];
-    if (val !== 0) {
-      for (let j = 0; j < nCols; j++) arr[r][j] /= val;
-    }
-
-    for (let i = 0; i < nRows; i++) {
-      if (i !== r) {
-        let val = arr[i][lead];
-        for (let j = 0; j < nCols; j++) {
-          arr[i][j] -= val * arr[r][j];
-        }
-      }
-    }
-    lead++;
   }
   return arr;
 }
 
-function powerIteration(A, num_iter=1000, tol=1e-10) {
-  const n = A.length;
-  let b = Array(n).fill(1);
-  let lambda = 0;
+/* ----------  Solve Ax = b  ---------------------------------------- */
+function solveAxEqualsB(A, b) {
+  const aug  = A.map((row, i) => row.concat([b[i]]));
+  const augR = rref(aug);
 
-  for (let iter = 0; iter < num_iter; iter++) {
-    // Compute b_new = A * b
-    let b_new = Array(n).fill(0);
-    for (let i = 0; i < n; i++)
-      for (let j = 0; j < n; j++)
-        b_new[i] += A[i][j] * b[j];
-    // Normalize
-    const norm = Math.sqrt(b_new.reduce((sum, x) => sum + x*x, 0));
-    b_new = b_new.map(x => x / norm);
+  const m = A.length, n = A[0].length;
+  const sol = Array(n).fill(ZERO);
+  let free  = false;
 
-    // Rayleigh quotient for eigenvalue estimate
-    let num = 0, den = 0;
-    for (let i = 0; i < n; i++) {
-      let s = 0;
-      for (let j = 0; j < n; j++)
-        s += A[i][j] * b_new[j];
-      num += b_new[i] * s;
-      den += b_new[i] * b_new[i];
-    }
-    let lambda_new = num / den;
-
-    // Check for convergence
-    if (Math.abs(lambda_new - lambda) < tol)
-      break;
-    lambda = lambda_new;
-    b = b_new;
+  /* inconsistency? */
+  for (const row of augR) {
+    const piv = row.findIndex(x => !isZero(x));
+    if (piv === n && !isZero(row[n])) return {type:"none"};
   }
-  return {eigenvalue: lambda, eigenvector: b};
+
+  /* free vars? */
+  for (let c = 0; c < n; ++c) {
+    const colHas = augR.some(row => !isZero(row[c]));
+    if (!colHas) free = true;
+  }
+  if (free || m < n) return {type:"infinite", rref:augR};
+
+  /* unique solution */
+  for (let i = 0; i < n; ++i) sol[i] = augR[i][n];
+  return {type:"unique", solution:sol, rref:augR};
 }
 
-function transpose(M) {
-  return M[0].map((_, i) => M.map(row => row[i]));
-}
+/* ----------  QR-algorithm (complex)  ------------------------------ */
+function dot(u,v)   { return u.reduce((s,ui,idx)=> cAdd(s, cMul(cConj(ui),v[idx])), ZERO); }
+function norm(v)    { return Math.sqrt(v.reduce((s,x)=> s + Math.pow(cAbs(x),2), 0)); }
 
-function dot(u, v) {
-  let sum = 0;
-  for (let i = 0; i < u.length; i++) sum += u[i]*v[i];
-  return sum;
-}
+function qrDecomp(A) {
+  const n = A.length;
+  const R = Array.from({length:n}, () => Array(n).fill(ZERO));
+  const Qcols = [];
 
-// Gram-Schmidt QR Decomposition
-function qrDecomposition(A) {
-  let n = A.length;
-  let Q = [];
-  let R = Array.from({length: n}, () => Array(n).fill(0));
+  const V = [];                              // columns of A
+  for (let j = 0; j < n; ++j) V.push(A.map(r => r[j]));
 
-  // Deep copy of A's columns
-  let V = [];
-  for (let j = 0; j < n; j++)
-    V.push(A.map(row => row[j]));
-
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < n; ++i) {
     let v = V[i].slice();
-    for (let j = 0; j < i; j++) {
-      R[j][i] = dot(Q[j], V[i]);
-      for (let k = 0; k < n; k++) v[k] -= R[j][i] * Q[j][k];
+    for (let j = 0; j < i; ++j) {
+      const r = dot(Qcols[j], V[i]);
+      R[j][i] = r;
+      for (let k = 0; k < n; ++k) v[k] = cSub(v[k], cMul(r, Qcols[j][k]));
     }
-    R[i][i] = Math.sqrt(dot(v, v));
-    Q.push(v.map(x => x / (R[i][i] || 1e-12)));
+    const rii = norm(v);
+    R[i][i]   = rii;
+    Qcols[i]  = v.map(x => cDiv(x, rii || 1));
   }
-  // Reconstruct Q as columns
-  let Qmat = Array.from({length: n}, (_, i) => Q.map(col => col[i]));
-  return {Q: Qmat, R: R};
+
+  const Q = Array.from({length:n}, (_, r) =>
+              Array.from({length:n}, (_, c) => Qcols[c][r]));
+  return {Q, R};
 }
 
-function qrAlgorithm(A, maxIter=100, tol=1e-8) {
-  let n = A.length;
-  let Ak = A.map(row => row.slice());
-  for (let iter = 0; iter < maxIter; iter++) {
-    let {Q, R} = qrDecomposition(Ak);
-    // Multiply R*Q
-    let newA = Array.from({length: n}, () => Array(n).fill(0));
-    for (let i = 0; i < n; i++)
-      for (let j = 0; j < n; j++)
-        for (let k = 0; k < n; k++)
-          newA[i][j] += R[i][k] * Q[k][j];
-    // Check for convergence
-    let diff = 0;
-    for (let i = 0; i < n; i++)
-      for (let j = 0; j < n; j++)
-        diff += Math.abs(newA[i][j] - Ak[i][j]);
-    if (diff < tol) break;
-    Ak = newA;
-  }
-  // Eigenvalues are on diagonal
-  return Ak.map((row, i) => row[i]);
+function matMul(A,B) {
+  const n=A.length, m=B[0].length, k=B.length;
+  const C = Array.from({length:n}, ()=>Array(m).fill(ZERO));
+  for (let i=0;i<n;++i)
+    for (let j=0;j<m;++j)
+      for (let t=0;t<k;++t)
+        C[i][j] = cAdd(C[i][j], cMul(A[i][t], B[t][j]));
+  return C;
 }
 
-function findEigenvector(A, lambda) {
+function qrEigenvalues(A, maxIter=150, tol=1e-9) {
+  let Ak = A.map(r=>r.slice());
+  const n = Ak.length;
+
+  for (let iter=0; iter<maxIter; ++iter) {
+    const {Q,R} = qrDecomp(Ak);
+    const next  = matMul(R,Q);
+
+    let delta = 0;
+    for (let i=0;i<n;++i)
+      for (let j=0;j<n;++j)
+        delta += Math.abs(cAbs(next[i][j] - Ak[i][j]));
+    if (delta < tol) break;
+    Ak = next;
+  }
+  return Ak.map((row,i)=> row[i]);      // diagonal ≈ eigenvalues
+}
+
+/* ----------  improved eigenvector finder  ------------------------- */
+function findEigenvector(A, λ, tol=1e-6) {
   const n = A.length;
-  // Construct (A - lambda*I)
-  let M = [];
-  for (let i = 0; i < n; i++) {
-    M.push(A[i].map((val, j) => val - (i === j ? lambda : 0)));
-  }
-  // Augment with zero column
-  for (let i = 0; i < n; i++) M[i].push(0);
 
-  let rrefM = rref(M);
+  /* build (A − λI) */
+  const M = A.map((row,i) =>
+               row.map((v,j)=> cSub(v, (i===j) ? λ : ZERO)));
 
-  // Extract eigenvector (free variable = 1)
-  // This code picks last variable free, sets to 1
-  let x = Array(n).fill(0);
-  x[n-1] = 1;
-  for (let i = n-2; i >= 0; i--) {
-    let sum = 0;
-    for (let j = i+1; j < n; j++) {
-      sum += rrefM[i][j] * x[j];
-    }
-    x[i] = -sum;
+  /* RREF with relaxed tolerance to expose null-space */
+  const R = _gauss(M.map(r=>r.slice()), true);   // own rref
+
+  /* identify pivot columns */
+  const pivotCols = new Set();
+  for (const row of R) {
+    const piv = row.findIndex(x => !isZero(x, tol));
+    if (piv !== -1) pivotCols.add(piv);
   }
-  return x;
+
+  /* first free column becomes 1, back-sub for pivots */
+  const free = [...Array(n).keys()].filter(j => !pivotCols.has(j));
+  if (free.length === 0) return Array(n).fill(ZERO);   // should not happen
+
+  const x = Array(n).fill(ZERO);
+  x[free[0]] = math.complex(1,0);
+
+  for (let i = R.length-1; i >= 0; --i) {
+    const row = R[i];
+    const piv = row.findIndex(v => !isZero(v, tol));
+    if (piv === -1) continue;
+
+    let s = ZERO;
+    for (let j = piv+1; j < n; ++j)
+      s = cAdd(s, cMul(row[j], x[j]));
+    x[piv] = cSub(ZERO, s);
+  }
+
+  /* normalise for nicer output */
+  const vnorm = norm(x);
+  return vnorm < EPS ? x : x.map(e => cDiv(e, vnorm));
 }
 
-function toSqrtOrNumber(x, tol=1e-8) {
-  let sq = Math.sqrt(x);
-  if (Math.abs(sq - Math.round(sq)) < tol) {
-    return `${Math.round(sq)}&sup2;`;
-  }
-  if (Math.abs(Math.round(sq * sq) - x) < tol) {
-    return `&radic;${Math.round(x)}`;
-  }
-  return null;
-}
-
-function formatQuadraticRoots(a, b, c) {
-  // a*lambda^2 + b*lambda + c = 0
-  if (Math.abs(a) < 1e-12) return [];
-  // λ = (-b ± sqrt(b^2-4ac)) / (2a)
-  let D = b*b - 4*a*c;
-  if (D < 0) {
-    return ["Complex eigenvalues"];
-  }
-  let sqrtD = Math.sqrt(D);
-  // Symbolic if not perfect square:
-  if (Math.abs(Math.round(sqrtD)*Math.round(sqrtD) - D) < 1e-8) {
-    sqrtD = Math.round(sqrtD);
-    return [
-      `<span>(-${b} + ${sqrtD !== 1 ? sqrtD : ""})/(${2*a})</span>`,
-      `<span>(-${b} - ${sqrtD !== 1 ? sqrtD : ""})/(${2*a})</span>`
-    ];
-  }
-  // Otherwise show as ±sqrt
-  return [
-    `<span>(${(-b)} + &radic;${D})/(${2*a})</span>`,
-    `<span>(${(-b)} - &radic;${D})/(${2*a})</span>`
-  ];
-}
-
+/* ----------  main “Calculate” button ----------------------------- */
 function calculateMatrix() {
-  let isAxB = isAxBMode();
-  let output = "";
-  if (isAxB) {
-    const {A, b} = getMatrix();
-    output += "<h3>Input Matrix A</h3>" + matrixToHtml(A);
-    output += "<h3>Vector b</h3>" + matrixToHtml(b.map(x => [x]));
-    const {type, solution, rref, rref: rrefAug} = solveAxEqualsB(A, b);
-    output += "<h3>Augmented Matrix REF</h3>" + matrixToHtml(ref(A.map((row, i) => row.concat([b[i]]))));
-    output += "<h3>Augmented Matrix RREF</h3>" + matrixToHtml(rrefAug);
+  const axb = isAxBMode();
+  let html  = "";
 
-    if (type === "unique") {
-      output += "<h3>Solution Vector x</h3>" + matrixToHtml(solution.map(x => [x]));
-    } else if (type === "none") {
-      output += "<h3>No Solution</h3>";
-    } else if (type === "infinite") {
-      output += "<h3>Infinite Solutions (Free variables)</h3>";
-      // Could print rref or more info if you want
+  if (axb) {
+    /* -- solve Ax = b ------------------------------------------- */
+    const {A,b} = getMatrix();
+    html += `<h3>Matrix A</h3>${toHtml(A)}`;
+    html += `<h3>Vector b</h3>${toHtml(b.map(x => [x]))}`;
+
+    const res = solveAxEqualsB(A,b);
+    const aug = A.map((r,i)=> r.concat([b[i]]));
+
+    html += `<h3>Augmented REF</h3>${toHtml(ref(aug))}`;
+    html += `<h3>Augmented RREF</h3>${toHtml(res.rref || [])}`;
+
+    if (res.type === "unique") {
+      html += `<h3>Solution x</h3>${toHtml(res.solution.map(x=>[x]))}`;
+    } else if (res.type === "none") {
+      html += "<h3>No Solution</h3>";
+    } else {
+      html += "<h3>Infinite Solutions (free variables)</h3>";
     }
+
   } else {
-    // original code
-    const matrix = getMatrix();
-    output = "<h3>Input Matrix</h3>" + matrixToHtml(matrix);
-    const refM = ref(matrix);
-    output += "<h3>Row Echelon Form (REF)</h3>" + matrixToHtml(refM);
+    /* -- REF / RREF / eigen ------------------------------------- */
+    const M = getMatrix();
+    html += `<h3>Input Matrix</h3>${toHtml(M)}`;
+    html += `<h3>Row Echelon (REF)</h3>${toHtml(ref(M))}`;
+    html += `<h3>Reduced Row Echelon (RREF)</h3>${toHtml(rref(M))}`;
 
-    const rrefM = rref(matrix);
-    output += "<h3>Reduced Row Echelon Form (RREF)</h3>" + matrixToHtml(rrefM);
+    if (M.length === M[0].length) {      // square ⇒ eigen work
+      const eigVals = qrEigenvalues(M);
+      html += "<h3>Eigenvalues (approx.)</h3>" +
+              eigVals.map((e,i)=>`λ<sub>${i+1}</sub>=${nice(e)}`).join(", ");
 
-    if (matrix.length === matrix[0].length) {
-      let eigenvalues = qrAlgorithm(matrix, 200, 1e-10);
-      output += "<h3>Eigenvalues (approximate)</h3>" + eigenvalues.map(e =>
-        e.toFixed(6)
-      ).join(', ');
-
-      output += "<h3>Eigenvectors (approximate)</h3>";
-      eigenvalues.forEach((lambda, i) => {
-        let vec = findEigenvector(matrix, lambda);
-        output += `&lambda;<sub>${i+1}</sub> = ${lambda.toFixed(6)}: [${vec.map(x => x.toFixed(6)).join(', ')}]<br>`;
-      });   
+      html += "<h3>Eigenvectors (approx.)</h3>";
+      eigVals.forEach((λ,i)=>{
+        const v = findEigenvector(M, λ);
+        html += `λ<sub>${i+1}</sub>: [${v.map(nice).join(", ")}]<br>`;
+      });
     }
   }
-
-  document.getElementById('output').innerHTML = output;
+  document.getElementById("output").innerHTML = html;
 }
 
+/* ----------  initial setup  ------------------------------------- */
+window.onload = onModeChange;
 
-window.onload = function() {
-  onModeChange();
-};
 
 // === Theme Switcher ===
 const THEME_KEY = 'matrixcalc-theme';
