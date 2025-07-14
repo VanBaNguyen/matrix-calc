@@ -89,3 +89,61 @@ input[type="radio"] {
   accent-color: var(--primary);
   vertical-align: middle;
 }
+
+.matrix-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5em 0;
+}
+
+.matrix-bracket-wrap {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 24px 18px;
+  box-shadow: 0 2px 10px 0 #adadf066;
+  border: 1.5px solid var(--matrix-border);
+}
+
+#matrix-form {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 1em;
+  position: relative;
+  min-width: 80px;
+}
+
+#matrix-form input {
+  width: 70px;
+  height: 42px;
+  padding: 0.35em;
+  background: var(--input-bg);
+  text-align: center;
+  font-size: 1.23em;
+  font-family: 'JetBrains Mono', monospace;
+  border: 2px solid #b3bef4;
+  border-radius: 6px;
+  box-shadow: var(--glow);
+  transition: border 0.16s, box-shadow 0.18s;
+}
+
+#matrix-form input:focus {
+  border-color: var(--secondary);
+  background: #eef2fc;
+  box-shadow: 0 0 10px #a884ff88;
+}
+
+#matrix-form input[type=number]::-webkit-inner-spin-button,
+#matrix-form input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+#matrix-form input[type=number] {
+  -moz-appearance: textfield;
+}
+
+#matrix-form input,
+.matrix-display {
+  color: var(--text);
+  background: var(--input-bg);
+}
